@@ -27,6 +27,8 @@ def add(parent, tag, value):
 
 def build_feed():
 
+    print("Starting Google Merchant Feed...", flush=True)
+
     rss = ET.Element("rss", version="2.0")
 
     channel = ET.SubElement(rss, "channel")
@@ -35,15 +37,20 @@ def build_feed():
     ET.SubElement(channel, "link").text = STORE_URL
     ET.SubElement(channel, "description").text = "ScarTech Google Merchant Feed"
 
+    print("Loading posts...", flush=True)
+
     posts = get_posts()
 
-    print(f"Found {len(posts)} products")
+    print(f"Found {len(posts)} products", flush=True)
 
     for index, post in enumerate(posts, start=1):
 
         try:
 
-            print(f"[{index}/{len(posts)}] {post['title']}")
+            print(
+                f"[{index}/{len(posts)}] {post['title']}",
+                flush=True
+            )
 
             product = extract_product(post["url"])
 
@@ -67,44 +74,48 @@ def build_feed():
             add(item, "condition", product["condition"])
             add(item, "brand", product["brand"])
 
-            # Google Merchant
             add(item, "identifier_exists", "yes")
             add(item, "adult", "no")
             add(item, "google_product_category", "121")
             add(item, "product_type", "Projector Lamps")
 
-            # MPN
             if product.get("mpn"):
+
                 add(item, "mpn", product["mpn"])
+
             else:
+
                 add(
                     item,
                     "mpn",
                     product["url"].split("/")[-1].replace(".html", "")
                 )
 
-            # SKU
             if product.get("sku"):
                 add(item, "sku", product["sku"])
 
-            # Price
             price = product.get("price", "").strip()
 
             if price:
                 add(item, "price", f"{price} EGP")
 
-            # Weight (اختياري)
             if product.get("weight"):
-                add(item, "shipping_weight", f'{product["weight"]} kg')
+                add(
+                    item,
+                    "shipping_weight",
+                    f'{product["weight"]} kg'
+                )
 
         except Exception as e:
 
             print()
-            print("=" * 60)
-            print("ERROR")
-            print(post["url"])
-            print(e)
-            print("=" * 60)
+            print("=" * 60, flush=True)
+            print("ERROR", flush=True)
+            print(post["url"], flush=True)
+            print(e, flush=True)
+            print("=" * 60, flush=True)
+
+    print("Writing XML...", flush=True)
 
     os.makedirs("output", exist_ok=True)
 
@@ -117,17 +128,22 @@ def build_feed():
     )
 
     print()
-    print("=" * 60)
-    print("Feed Generated Successfully")
-    print(OUTPUT_XML)
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("Feed Generated Successfully", flush=True)
+    print(OUTPUT_XML, flush=True)
+    print("=" * 60, flush=True)
 
     print()
-    print("=" * 60)
-    print("Generating Local Inventory Feed...")
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("Generating Local Inventory Feed...", flush=True)
+    print("=" * 60, flush=True)
 
     build_local_inventory()
+
+    print()
+    print("=" * 60, flush=True)
+    print("DONE", flush=True)
+    print("=" * 60, flush=True)
 
 
 if __name__ == "__main__":
