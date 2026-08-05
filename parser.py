@@ -20,11 +20,21 @@ def get_posts():
 
     print("Feed downloaded successfully", flush=True)
 
+    print("Parsing feed...", flush=True)
+
     feed = feedparser.parse(response.content)
+
+    print("Feed parsed successfully", flush=True)
+
+    print(f"Entries found: {len(feed.entries)}", flush=True)
 
     posts = []
 
-    for entry in feed.entries:
+    for index, entry in enumerate(feed.entries, start=1):
+
+        if index % 10 == 0:
+            print(f"Loaded {index} feed entries...", flush=True)
+
         posts.append({
             "title": entry.get("title", ""),
             "url": entry.get("link", "")
@@ -39,7 +49,10 @@ if __name__ == "__main__":
 
     posts = get_posts()
 
-    print("Posts:", len(posts))
+    print()
+    print("=" * 60)
+    print(f"Posts: {len(posts)}")
+    print("=" * 60)
 
     for p in posts[:5]:
         print(p["title"])
